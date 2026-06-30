@@ -73,4 +73,4 @@ export const Logout = async(req,res)=>{
         console.error("Failed to sign up user",error)
         return Response(res,500,"Internal server error")
     }
-}
+} 

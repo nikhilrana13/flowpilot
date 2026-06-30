@@ -1,27 +1,11 @@
 import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema({
-    fullname: {
-      type: String,
-      required: true,
-      maxlength: 20,
-      lowercase: true,
-      trim: true,
-    },
+    fullname: {type: String,required: true,maxlength: 20,lowercase: true,trim: true},
     workemail: { type: String, required: true, lowercase: true, trim: true },
     password: { type: String, required: true},
     onboarding: {
-      categoryliketoautomate: {
-        type: String,
-        enum: [
-          "sales",
-          "marketing",
-          "customersupport",
-          "hrpeople",
-          "finance",
-          "other",
-        ],
-        default: null,
+      categoryliketoautomate: {type: String,enum: ["sales","marketing","customersupport","hrpeople","finance","other",],default:null,
       },
       technicalexperience: {
         type: String,
