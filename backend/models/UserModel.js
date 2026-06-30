@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
       trim: true,
     },
     workemail: { type: String, required: true, lowercase: true, trim: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true},
     onboarding: {
       categoryliketoautomate: {
         type: String,
@@ -21,12 +21,12 @@ const UserSchema = new mongoose.Schema({
           "finance",
           "other",
         ],
-        default: "",
+        default: null,
       },
       technicalexperience: {
         type: String,
         enum: ["begineer", "intermediate", "advanced"],
-        default: "",
+        default:null,
       },
       sizeofworkspace: {
         type: String,
@@ -39,10 +39,11 @@ const UserSchema = new mongoose.Schema({
           "501-2000",
           "1000+",
         ],
-        default: "",
+        default:null,
       },
     },
-    isActive: { type: Boolean, default: true },
+    isActive: { type: Boolean, default: false },
+    isOnboardingCompleted:{type:Boolean,default:false}
   },
   { timestamps: true },
 );

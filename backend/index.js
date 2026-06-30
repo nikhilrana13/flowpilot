@@ -3,6 +3,7 @@ import cors from 'cors'
 import cookieParser from "cookie-parser"
 import dotenv from "dotenv" 
 import {configure } from './config/db.js'
+import authRoute from "./routes/authRoutes.js"
 
 dotenv.config()
 
@@ -18,7 +19,7 @@ app.use(cookieParser())
 
 
 // routes 
-
+app.use("/api/auth",authRoute)
 
 
 
