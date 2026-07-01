@@ -4,7 +4,7 @@ const ExecutionSchema = mongoose.Schema({
     status:{type:String, enum:["running","completed","failed"],default:"running"},
     startedAt:{type:Date},
     endedAt:{type:Date},
-    duration:{type:Number},
+    duration:{type:Number,default:0},
     error:{type:String,default:null},
     triggerType:{type:String, enum:["manual","webhook"]}
 },{timestamps:true})

@@ -7,6 +7,8 @@ import authRoute from "./routes/authRoutes.js"
 import workSpaceRoute from "./routes/workspaceRoutes.js"
 import userRoute from "./routes/userRoutes.js"
 import workflowRoute from "./routes/workflowRoutes.js"
+import webhookRoute from "./routes/webhookRoutes.js"
+import executionRoute from "./routes/ExecutionRoutes.js"
 
 dotenv.config()
 
@@ -25,6 +27,8 @@ app.use(cookieParser())
 app.use("/api/auth",authRoute)
 app.use("/api/workspaces",workSpaceRoute)
 app.use("/api/workflow",workflowRoute)
+app.use("/api/execution",executionRoute)
+app.use("/api/webhooks",webhookRoute)
 app.use("/api/user",userRoute)
 
 
