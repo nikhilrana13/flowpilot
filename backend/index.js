@@ -6,6 +6,7 @@ import {configure } from './config/db.js'
 import authRoute from "./routes/authRoutes.js"
 import workSpaceRoute from "./routes/workspaceRoutes.js"
 import userRoute from "./routes/userRoutes.js"
+import workflowRoute from "./routes/workflowRoutes.js"
 
 dotenv.config()
 
@@ -23,6 +24,7 @@ app.use(cookieParser())
 // routes 
 app.use("/api/auth",authRoute)
 app.use("/api/workspaces",workSpaceRoute)
+app.use("/api/workflow",workflowRoute)
 app.use("/api/user",userRoute)
 
 
