@@ -3,12 +3,13 @@ export const ResponseExecutor = async (node, context) => {
     if (!node) {
       throw new Error("Response node is missing");
     }
-    const { response } = node.data || {};
+    const { sourceNodeId } = node.data || {};
+    const output = sourceNodeId ? context.outputs[sourceNodeId] : Object.values(context.outputs).at(-1);
     return {
       success: true,
       nodeId: node.id,
       nodeType: node.type,
-      output: response ?? context.outputs,
+      output
     };
   } catch (error) {
     return {

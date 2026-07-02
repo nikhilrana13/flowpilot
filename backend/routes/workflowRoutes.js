@@ -11,6 +11,6 @@ router.get("/all",isAuthenticated,GetUserWorkflows)
 router.get("/:id/details",isAuthenticated,EachWorkflowDetails)
 router.put("/update/:id",isAuthenticated,UpdateWorkflow)
 router.delete("/delete/:id",isAuthenticated,DeleteWorkflow)
-router.get("/published",isAuthenticated,PublishedWorkflow)
+router.get("/published/:id",isAuthenticated,PublishedWorkflow)
 
 export default router 

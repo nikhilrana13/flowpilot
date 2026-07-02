@@ -43,6 +43,7 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
       }
       const nodeStartedAt = new Date();
       const result = await executor(currentNode, context);
+      console.log(result);
       const nodeEndedAt = new Date();
       // Save node output
       context.outputs[currentNode.id] = result.output;
@@ -51,7 +52,7 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
         executionId: execution._id,
         nodeId: currentNode.id,
         nodeType: currentNode.type,
-        status: result.success ? "success" : "failed",
+        status: result.success ? "completed" : "failed",
         startedAt: nodeStartedAt,
         endedAt: nodeEndedAt,
         input: JSON.stringify(currentNode.data || {}),
@@ -85,14 +86,12 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
       context,
     };
   } catch (error) {
-
     if (execution) {
       execution.status = "failed";
       execution.error = error.message;
       execution.endedAt = new Date();
       execution.duration =
-        execution.endedAt.getTime() - execution.startedAt.getTime();
-
+      execution.endedAt.getTime() - execution.startedAt.getTime();
       await execution.save();
     }
     throw error;

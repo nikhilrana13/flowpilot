@@ -1,5 +1,6 @@
 import User from "../models/UserModel.js";
 import WorkFlow from "../models/Workflow.js";
+import WorkSpace from "../models/WorkSpace.js";
 import { Response } from "../utils/responseHandler.js";
 import { nanoid } from "nanoid";
 

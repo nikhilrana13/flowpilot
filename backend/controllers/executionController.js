@@ -36,6 +36,7 @@ export const ExecuteWorkflow = async (req, res) => {
     const execution = await Execution.create({
       workflowId: workflow._id,
       status: "running",
+      triggerType: "manual",
       startedAt: new Date(),
     });
     // Execute workflow
@@ -53,11 +54,11 @@ export const ExecuteWorkflow = async (req, res) => {
         lastExecutedAt: new Date(),
       },
     });
-
+    const responseNode = workflow.nodes.find(node => node.type === "response");
     return Response(res, 200, "Workflow executed successfully", {
       executionId: execution._id,
       status: execution.status,
-      result: result.context.outputs,
+      result:result.context.outputs[responseNode.id],
     });
   } catch (error) {
     console.error("Failed to execute workflow", error);
@@ -98,10 +99,11 @@ export const ExecuteWebhook = async (req, res) => {
         lastExecutedAt: new Date(),
       },
     });
+    const responseNode = workflow.nodes.find(node => node.type === "response");
     return Response(res, 200, "Webhook executed successfully", {
       executionId: execution._id,
       status: execution.status,
-      result: result.context.outputs,
+      result: result.context.outputs[responseNode.id],
     });
   } catch (error) {
     console.error("Webhook execution failed", error);
