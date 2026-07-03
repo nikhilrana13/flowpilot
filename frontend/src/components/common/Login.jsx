@@ -36,7 +36,7 @@ const Login = () => {
                 if (user?.isOnboardingCompleted) {
                     router.replace("/dashboard")
                 } else {
-                    router.replace("/dashboard/onboarding")
+                    router.replace("/onboarding")
                 }
             }
 
@@ -44,10 +44,7 @@ const Login = () => {
             console.error("Failed to login user", error)
             toast.error(error?.response?.data.message || "Internal server error")
         } finally {
-            setTimeout(() => {
-                setLoading(false)
-            }, 3000);
-            // setLoading(false)
+            setLoading(false)
         }
     }
 
