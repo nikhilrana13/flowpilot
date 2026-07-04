@@ -1,5 +1,6 @@
 import { SetUser } from '@/redux/AuthSlice';
 import { api } from '@/services/api';
+import { resetAllApiCaches } from '@/utils/resetApiCache';
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -12,9 +13,10 @@ const useLogout = () => {
         try {
             const response = await api.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/logout`)
             if(response){
+                toast.success(response?.message)
                 localStorage.removeItem("token")
                 dispatch(SetUser(null))
-                toast.success(response?.message)
+                dispatch(resetAllApiCaches())
                 router.replace("/auth/login")
             }
         } catch (error) {

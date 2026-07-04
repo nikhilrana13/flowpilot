@@ -1,9 +1,11 @@
 "use client"
+import { getGreeting } from "@/utils/Helpers";
 import { ArrowRight, Sparkles, Workflow } from "lucide-react";
 import { useSelector } from "react-redux";
 
 const WelcomeSection = () => {
     const user = useSelector((state)=>state.Auth.user)
+    const greeting = getGreeting()
   return (
     <section className="relative overflow-hidden rounded-3xl border border-[#27272A] bg-[#18181B] p-6 sm:p-8 lg:p-10">
       {/* Background Glow */}
@@ -15,7 +17,7 @@ const WelcomeSection = () => {
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#7C3AED]/20 bg-[#7C3AED]/10 px-4 py-2">
             <Sparkles className="h-4 w-4 text-[#7C3AED]" />
             <span className="text-sm font-medium text-[#C4B5FD]">
-              Good Morning 👋
+            {greeting.text} {greeting.emoji}
             </span>
           </div>
           <h1 className="text-3xl font-bold leading-tight text-white sm:text-4xl xl:text-5xl">
