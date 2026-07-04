@@ -1,6 +1,6 @@
 import React from 'react';
 
-const NavigationButtons = ({back,next,disabled,submit,step}) => {
+const NavigationButtons = ({back,next,disabled,submit,step,loading}) => {
   return (
     <div className="mt-10 flex justify-between">
 
@@ -22,11 +22,11 @@ const NavigationButtons = ({back,next,disabled,submit,step}) => {
         </button>
       ) : (
         <button
-          disabled={disabled}
+          disabled={disabled || loading}
           onClick={submit}
           className="rounded-xl cursor-pointer bg-[#7C3AED] px-6 py-3 text-white disabled:opacity-40"
         >
-          Finish Setup
+          {loading ? "Please wait..." : "  Finish Setup"}  
         </button>
       )}
     </div>

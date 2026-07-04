@@ -34,7 +34,7 @@ const layout = ({ children }) => {
         </div>
 
         {/* right side */}
-        <div className="w-full lg:w-[80%] bg-[#f6f6f8] dark:bg-[#101322] h-screen  overflow-y-auto">
+        <div className="w-full custom-scrollbar lg:w-[80%] bg-[#0F0F13] h-screen   overflow-y-auto">
           {children}
         </div>
       </div>

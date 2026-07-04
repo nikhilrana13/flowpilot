@@ -6,10 +6,18 @@ import NavigationButtons from '@/components/onboarding/NavigationButtons';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import StepHeader from '@/components/onboarding/StepHeader';
 import React, { useState } from 'react';
+import { api } from '@/services/api';
+import { toast } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { SetUser } from '@/redux/AuthSlice';
+import { useRouter } from 'next/navigation';
 
 
 const page = () => {
     const [step,setStep] = useState(1)
+    const [loading,setLoading] = useState(false)
+    const router = useRouter()
+    const dispatch = useDispatch()
     const [formData, setFormData] = useState({
     categoryliketoautomate: "",
     technicalexperience: "",
@@ -28,8 +36,24 @@ const page = () => {
      setFormData((prev)=>({...prev,[field]:value}))
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     console.log(formData);
+    try {
+        setLoading(true)
+        const response = await api.patch("/api/user/onboarding",formData)
+        // console.log("response",response)
+        if(response){
+           toast.success(response?.message)
+           const user = response?.data?.user 
+           dispatch(SetUser(user))
+           router.replace("/dashboard")
+        }
+    } catch (error) {
+      console.error("failed to onboarding user",error)
+      toast.error(error?.response?.data?.message || "Internal server error")
+    }finally{
+      setLoading(false)
+    }
   };
 
   return (
@@ -69,6 +93,7 @@ const page = () => {
           back={back}
           next={next}
           submit={handleSubmit}
+          loading={loading}
           disabled={
             (step === 1 &&
               !formData.categoryliketoautomate) ||

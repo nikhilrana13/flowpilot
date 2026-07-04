@@ -7,6 +7,7 @@ export const OnBoardingUser = async (req, res) => {
   try {
     const userId = req.user;
     const { categoryliketoautomate, technicalexperience, sizeofworkspace } = req.body;
+    // console.log("req.body",req.body)
     // validation
     const allowedFields = ["categoryliketoautomate","technicalexperience","sizeofworkspace"];
     for(let field of allowedFields){

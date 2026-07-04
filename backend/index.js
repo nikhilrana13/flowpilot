@@ -9,6 +9,7 @@ import userRoute from "./routes/userRoutes.js"
 import workflowRoute from "./routes/workflowRoutes.js"
 import webhookRoute from "./routes/webhookRoutes.js"
 import executionRoute from "./routes/ExecutionRoutes.js"
+import analyticsRoute from "./routes/analyticsRoutes.js"
 
 dotenv.config()
 
@@ -33,6 +34,7 @@ app.use("/api/workflow",workflowRoute)
 app.use("/api/execution",executionRoute)
 app.use("/api/webhooks",webhookRoute)
 app.use("/api/user",userRoute)
+app.use("/api/analytics",analyticsRoute)
 
 
 
