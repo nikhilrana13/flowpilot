@@ -24,7 +24,7 @@ export const DashboardStats = async (req, res) => {
       WorkFlow.countDocuments({ userId }),
     ]);
     // recent work flows
-    const recentWorkflows = await WorkFlow.find({ userId }).select("name status executionCount updatedAt").sort({ createdAt: -1 }).limit(3).lean();
+    const recentWorkflows = await WorkFlow.find({ userId }).select("name status executionCount updatedAt ").sort({ createdAt: -1 }).limit(3).lean().populate("workspaceId", "spacename");
     return Response(res, 200, "Dashboard stats fetched successfully", {
       stats: {
         activeWorkspaces,

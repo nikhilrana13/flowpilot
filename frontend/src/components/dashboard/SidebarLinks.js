@@ -13,28 +13,6 @@ export const sidebarLinks = [
                 label: "My Workspaces",
                 href: "/dashboard/workspaces",
             },
-            {
-                label: "Create Workspace",
-                href: "/dashboard/workspaces/create",
-            },
-        ],
-    },
-    {
-        label: "Workflows",
-        icon: Workflow,
-        children: [
-            {
-                label: "All Workflows",
-                href: "/dashboard/workflows",
-            },
-            {
-                label: "Create Workflow",
-                href: "/dashboard/workflows/create",
-            },
-            {
-                label: "Executions",
-                href: "/dashboard/executions",
-            },
         ],
     },
     {

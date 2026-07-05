@@ -1,4 +1,5 @@
 import User from "../models/UserModel.js";
+import WorkFlow from "../models/Workflow.js";
 import WorkSpace from "../models/WorkSpace.js";
 import { Response } from "../utils/responseHandler.js";
 
@@ -40,7 +41,7 @@ export const CreateWorkspace = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
-// Get user workspaces 
+// Get user workspaces
 export const GetMyWorkspaces = async (req, res) => {
   try {
     const userId = req.user;
@@ -50,13 +51,43 @@ export const GetMyWorkspaces = async (req, res) => {
       return Response(res, 401, "User not found");
     }
     // find user workspaces
-    const workspaces = await WorkSpace.find({userId}).sort({createdAt:-1}).lean().select("_id spacename")
-    return Response(res,200,"workspaces fetched successfully",{workspaces})
+    const workspaces = await WorkSpace.find({ userId })
+      .sort({ createdAt: -1 })
+      .lean()
+      .select("_id spacename updatedAt");
+    return Response(res, 200, "workspaces fetched successfully", {
+      workspaces,
+    });
   } catch (error) {
     console.error("Failed to get workspaces", error);
     return Response(res, 500, "Internal server error");
   }
-}; 
+};
+// workspace details
+export const GetWorkSpaceDetails = async (req, res) => {
+  try {
+    const userId = req.user;
+    const workspaceId = req.params.id;
+    if (!workspaceId) {
+      return Response(res, 400, "WorkspaceId is Required");
+    }
+    //check user exists or not
+    const user = await User.findById(userId);
+    if (!user) {
+      return Response(res, 401, "User not found");
+    }
+    const workspace = await WorkSpace.findOne({
+      _id: workspaceId,
+      userId,
+    });
+    if (!workspace) {
+      return Response(res, 400, "Workspace not found");
+    }
+    const workflows = await WorkFlow.find({workspaceId}).sort({ updatedAt: -1 }).select("_id status name description updatedAt")
 
-
-
+    return Response(res, 200, "Workspace details", { workspace,workflows });
+  } catch (error) {
+    console.error("Failed to get workspaces details", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
