@@ -47,3 +47,17 @@ export const getGreeting = () => {
   };
 };
 
+export const isValidConnection = (source, target) => {
+   // Trigger cannot come after another node
+   if (
+      target.type === "manual" ||
+      target.type === "webhook"
+   )
+      return false;
+
+   // Response cannot connect to anything
+   if (source.type === "response")
+      return false;
+
+   return true;
+};

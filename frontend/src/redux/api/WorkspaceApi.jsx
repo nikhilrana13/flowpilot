@@ -18,7 +18,7 @@ export const WorkSpaceApi = createApi({
           GetWorkSpaceDetails:builder.query({
             query:(id)=>`/api/workspaces/${id}`,
             providesTags:["WorkSpace"]
-          })   
+          }),  
     })
 })
 

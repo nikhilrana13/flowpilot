@@ -4,7 +4,7 @@ const WorkFlowSchema = new mongoose.Schema({
     workspaceId:{type:mongoose.Schema.Types.ObjectId,ref:"WorkSpace",required:true},
     description:{type:String,default:"",maxlength:300},
     status:{type:String,enum:["draft","published"],default:"draft"},
-    webhookId:{type:String,unique:true,sparse:true,default:null},
+    webhookId:{type:String,unique:true,sparse:true,default:undefined},
     name:{type:String,required:true,maxlength:50,trim:true},
     nodes:{type: mongoose.Schema.Types.Mixed,default:[]},
     edges:{type: mongoose.Schema.Types.Mixed,default:[]},

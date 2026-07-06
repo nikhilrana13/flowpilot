@@ -8,23 +8,15 @@ import { nanoid } from "nanoid";
 export const CreateWorkflow = async (req, res) => {
   try {
     const userId = req.user;
-    const { name, description, nodes, edges, workspaceId } = req.body;
+    const { name, description, workspaceId } = req.body;
+    // console.log("req.body",req.body)
     // validation
-    const requiredFields = ["name", "nodes", "edges", "workspaceId"];
+    const requiredFields = ["name", "workspaceId"];
     for (const field of requiredFields) {
       if (req.body[field] === undefined || req.body[field] === null) {
         return Response(res, 400, `${field} is required`);
       }
     }
-    // nodes must be an array
-    if (!Array.isArray(nodes)) {
-      return Response(res, 400, "Nodes must be an array");
-    }
-    // edges must be an array
-    if (!Array.isArray(edges)) {
-      return Response(res, 400, "Edges must be an array");
-    }
-
     //check user exists or not
     const user = await User.findById(userId);
     if (!user) {
@@ -37,31 +29,6 @@ export const CreateWorkflow = async (req, res) => {
     });
     if (!workspace) {
       return Response(res, 404, "Workspace not exists");
-    }
-    const hasTrigger = nodes.some(
-      (node) => node.type === "manual" || node.type === "webhook",
-    );
-    if (!hasTrigger) {
-      return Response(
-        res,
-        400,
-        "Workflow must contain at least one trigger node.",
-      );
-    }
-    // check node type
-    const allowedNodeTypes = [
-      "manual",
-      "webhook",
-      "http",
-      "condition",
-      "gemini",
-      "response",
-    ];
-    const invalidNode = nodes.find(
-      (node) => !allowedNodeTypes.includes(node.type),
-    );
-    if (invalidNode) {
-      return Response(res, 400, "Invalid node type.");
     }
     // check workflow already exists or not
     const existingWorkflow = await WorkFlow.findOne({
@@ -77,8 +44,8 @@ export const CreateWorkflow = async (req, res) => {
       workspaceId: workspace._id,
       description,
       name: name.trim(),
-      nodes,
-      edges,
+      nodes: [],
+      edges: [],
     });
     return Response(res, 201, "Workflow created successfulky", { workflow });
   } catch (error) {
@@ -133,21 +100,21 @@ export const EachWorkflowDetails = async (req, res) => {
       return Response(res, 401, "User not found");
     }
     const workflow = await WorkFlow.findOne({
-        _id:workflowId,
-        userId:user._id
-    }).lean()
-     if (!workflow) {
-      return Response(res,404,"Workflow not found");
+      _id: workflowId,
+      userId: user._id,
+    }).lean();
+    if (!workflow) {
+      return Response(res, 404, "Workflow not found");
     }
-    return Response(res,200,"Workflow details",{workflow})
+    return Response(res, 200, "Workflow details", { workflow });
   } catch (error) {
-     console.error("Failed to get workflow detail", error);
+    console.error("Failed to get workflow detail", error);
     return Response(res, 500, "Internal server error");
   }
 };
-// update workflow 
-export const UpdateWorkflow = async(req,res)=>{
-    try{
+// update workflow
+export const UpdateWorkflow = async (req, res) => {
+  try {
     const userId = req.user;
     const workflowId = req.params.id;
     const { name, description, nodes, edges } = req.body;
@@ -176,11 +143,13 @@ export const UpdateWorkflow = async(req,res)=>{
     }
     // Trigger validation
     const hasTrigger = nodes.some(
-      (node) => node.type === "manual" || node.type === "webhook"
+      (node) => node.type === "manual" || node.type === "webhook",
     );
-    if (!hasTrigger) {return Response( res,
+    if (!hasTrigger) {
+      return Response(
+        res,
         400,
-        "Workflow must contain at least one trigger node."
+        "Workflow must contain at least one trigger node.",
       );
     }
     // Allowed node validation
@@ -194,7 +163,7 @@ export const UpdateWorkflow = async(req,res)=>{
     ];
 
     const invalidNode = nodes.find(
-      (node) => !allowedNodeTypes.includes(node.type)
+      (node) => !allowedNodeTypes.includes(node.type),
     );
 
     if (invalidNode) {
@@ -217,13 +186,12 @@ export const UpdateWorkflow = async(req,res)=>{
     workflow.nodes = nodes;
     workflow.edges = edges;
     await workflow.save();
-    return Response(res,200,"Workflow updated successfully",{workflow}
-    );
-    }catch(error){
+    return Response(res, 200, "Workflow updated successfully", { workflow });
+  } catch (error) {
     console.error("Failed to update workflow", error);
-    return Response(res,500,"Internal server error");
-}
-}
+    return Response(res, 500, "Internal server error");
+  }
+};
 // delete workflow
 export const DeleteWorkflow = async (req, res) => {
   try {
@@ -241,28 +209,22 @@ export const DeleteWorkflow = async (req, res) => {
     if (!workflow) {
       return Response(res, 404, "Workflow not found");
     }
-    const executions = await Execution.find({workflowId}).select("_id");
-    const executionIds = executions.map(execution => execution._id);
+    const executions = await Execution.find({ workflowId }).select("_id");
+    const executionIds = executions.map((execution) => execution._id);
     await ExecutionLog.deleteMany({
-    executionId:{$in:executionIds}
-   });
+      executionId: { $in: executionIds },
+    });
 
-   await Execution.deleteMany({
-    workflowId
-   });
+    await Execution.deleteMany({
+      workflowId,
+    });
 
-   await WorkFlow.findByIdAndDelete(workflowId);
-    return Response(res,200,"Workflow deleted successfully"
-    );
-
+    await WorkFlow.findByIdAndDelete(workflowId);
+    return Response(res, 200, "Workflow deleted successfully");
   } catch (error) {
     console.error("Failed to delete workflow", error);
 
-    return Response(
-      res,
-      500,
-      "Internal server error"
-    );
+    return Response(res, 500, "Internal server error");
   }
 };
 // publish workflow
@@ -270,6 +232,17 @@ export const PublishedWorkflow = async (req, res) => {
   try {
     const userId = req.user;
     const workflowId = req.params.id;
+    const { nodes, edges } = req.body;
+
+    // nodes must be an array
+    if (!Array.isArray(nodes)) {
+      return Response(res, 400, "Nodes must be an array");
+    }
+    // edges must be an array
+    if (!Array.isArray(edges)) {
+      return Response(res, 400, "Edges must be an array");
+    }
+
     //check user exists or not
     const user = await User.findById(userId);
     if (!user) {
@@ -283,19 +256,56 @@ export const PublishedWorkflow = async (req, res) => {
     if (!workflow) {
       return Response(res, 404, "Workflow not found");
     }
+    const hasTrigger = nodes.some(
+      (node) => node.type === "manual" || node.type === "webhook",
+    );
+    if (!hasTrigger) {
+      return Response(
+        res,
+        400,
+        "Workflow must contain at least one trigger node.",
+      );
+    }
+    // check node type
+    const allowedNodeTypes = [
+      "manual",
+      "webhook",
+      "http",
+      "condition",
+      "gemini",
+      "response",
+    ];
+    const invalidNode = nodes.find(
+      (node) => !allowedNodeTypes.includes(node.type),
+    );
+    if (invalidNode) {
+      return Response(res, 400, "Invalid node type.");
+    }
     if (workflow.status === "published") {
       return Response(res, 409, "Workflow already published");
     }
-    if (workflow.nodes.length < 2) {
+    if (nodes.length < 2) {
       return Response(
         res,
         400,
         "Workflow must contain at least one action node before publishing.",
       );
     }
+    if (edges.length === 0) {
+    return Response(
+        res,
+        400,
+        "Workflow must contain at least one connection."
+    );
+}
+    
     // generate webhook
-    workflow.webhookId = `wf_${nanoid(10)}`;
+    if (!workflow.webhookId) {
+      workflow.webhookId = `wf_${nanoid(10)}`;
+    }
     workflow.status = "published";
+    workflow.nodes = nodes;
+    workflow.edges = edges;
     await workflow.save();
     return Response(res, 200, "Workflow published successfully", {
       webhookUrl: `${process.env.BASE_URL}/webhooks/${workflow.webhookId}`,
@@ -305,8 +315,3 @@ export const PublishedWorkflow = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
-
-
-
-
-

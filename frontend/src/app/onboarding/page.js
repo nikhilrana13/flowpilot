@@ -37,7 +37,7 @@ const page = () => {
   };
 
   const handleSubmit = async() => {
-    console.log(formData);
+    // console.log(formData);
     try {
         setLoading(true)
         const response = await api.patch("/api/user/onboarding",formData)
