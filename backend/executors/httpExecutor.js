@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios from "axios";
 
 export const HttpExecutor = async (node, context) => {
   try {
@@ -14,13 +14,7 @@ export const HttpExecutor = async (node, context) => {
       timeout = 10000,
     } = node.data || {};
 
-    const allowedMethods = [
-      "GET",
-      "POST",
-      "PUT",
-      "PATCH",
-      "DELETE",
-    ];
+    const allowedMethods = ["GET", "POST", "PUT", "PATCH", "DELETE"];
 
     if (!allowedMethods.includes(method.toUpperCase())) {
       throw new Error("Invalid HTTP method");
@@ -28,16 +22,21 @@ export const HttpExecutor = async (node, context) => {
 
     new URL(url);
 
-    const response = await axios({
+    const config = {
       url,
       method: method.toUpperCase(),
       headers,
       params: query,
-      data: body,
       timeout,
       validateStatus: () => true,
-    });
+    };
 
+    if (!["GET", "DELETE"].includes(method.toUpperCase())) {
+      config.data = body;
+    }
+
+    const response = await axios(config);
+   
     return {
       success: response.status >= 200 && response.status < 300,
       nodeId: node.id,
@@ -46,7 +45,6 @@ export const HttpExecutor = async (node, context) => {
       output: response.data,
       headers: response.headers,
     };
-
   } catch (error) {
     return {
       success: false,
@@ -55,6 +53,5 @@ export const HttpExecutor = async (node, context) => {
       statusCode: error.response?.status || 500,
       error: error.response?.data || error.message,
     };
-
   }
 };

@@ -117,10 +117,10 @@ export const UpdateWorkflow = async (req, res) => {
   try {
     const userId = req.user;
     const workflowId = req.params.id;
-    const { name, description, nodes, edges } = req.body;
+    const {nodes, edges } = req.body;
 
     // Validation
-    const requiredFields = ["name", "nodes", "edges"];
+    const requiredFields = ["nodes", "edges"];
 
     for (const field of requiredFields) {
       if (req.body[field] === undefined || req.body[field] === null) {
@@ -169,20 +169,7 @@ export const UpdateWorkflow = async (req, res) => {
     if (invalidNode) {
       return Response(res, 400, "Invalid node type.");
     }
-
-    // Duplicate name check
-    const existingWorkflow = await WorkFlow.findOne({
-      workspaceId: workflow.workspaceId,
-      name: name.trim(),
-      _id: { $ne: workflowId },
-    });
-
-    if (existingWorkflow) {
-      return Response(res, 409, "Workflow name already exists.");
-    }
     // Update
-    workflow.name = name.trim();
-    workflow.description = description?.trim() || "";
     workflow.nodes = nodes;
     workflow.edges = edges;
     await workflow.save();
@@ -234,6 +221,10 @@ export const PublishedWorkflow = async (req, res) => {
     const workflowId = req.params.id;
     const { nodes, edges } = req.body;
 
+    // validation
+    if(!nodes || !edges){
+      return Response(res,400,"Nodes and Edges is Required")
+    }
     // nodes must be an array
     if (!Array.isArray(nodes)) {
       return Response(res, 400, "Nodes must be an array");

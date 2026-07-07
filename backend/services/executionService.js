@@ -43,7 +43,7 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
       }
       const nodeStartedAt = new Date();
       const result = await executor(currentNode, context);
-      console.log(result);
+      // console.log(result);
       const nodeEndedAt = new Date();
       // Save node output
       context.outputs[currentNode.id] = result.output;
@@ -56,7 +56,7 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
         startedAt: nodeStartedAt,
         endedAt: nodeEndedAt,
         input: JSON.stringify(currentNode.data || {}),
-        output: JSON.stringify(result.output || {}),
+        output:   typeof result.output === "string" ? result.output : JSON.stringify(result.output),
         error: result.error || null,
       });
       if (!result.success) {

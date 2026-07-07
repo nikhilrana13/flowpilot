@@ -22,8 +22,32 @@ export const WorkFlowApi = createApi({
         GetWorkflowDetails:builder.query({
             query:(id)=>`/api/workflow/${id}/details`,
             providesTags:["Workflow"]
-        })        
+        }),
+        // update workflow 
+        UpdateWorkflow:builder.mutation({
+            query:({nodes,edges,id})=>({
+                url:`/api/workflow/update/${id}`,
+                method:"PUT",
+                body:{
+                    nodes,
+                    edges
+                }
+            }),
+            invalidatesTags:["Workflow"]
+        }),  
+        // published workflow 
+        PublishedWorkflow:builder.mutation({
+             query:({nodes,edges,id})=>({
+                url:`/api/workflow/published/${id}`,
+                method:"PUT",
+                body:{
+                    nodes,
+                    edges
+                }
+            }),
+            invalidatesTags:["Workflow"]
+        })
     })
 })
 
-export const {useCreateWorkflowMutation,useGetWorkflowDetailsQuery} = WorkFlowApi
+export const {useCreateWorkflowMutation,useGetWorkflowDetailsQuery,useUpdateWorkflowMutation,usePublishedWorkflowMutation} = WorkFlowApi

@@ -5,7 +5,7 @@ const router = express.Router()
 
 
 // routes 
-router.get("/:id/execute",isAuthenticated,ExecuteWorkflow)
+router.post("/:id/execute",isAuthenticated,ExecuteWorkflow)
 router.get("/all",isAuthenticated,GetExecutions)
 router.get("/:id",isAuthenticated,GetExecutionDetails)
 

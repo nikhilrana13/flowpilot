@@ -24,6 +24,7 @@ const HttpForm = ({ node }) => {
     setBodyError("");
   }, [node?.id]);
 
+  console.log("node",node)
   return (
     <div className="space-y-6 p-5">
 
@@ -84,7 +85,6 @@ const HttpForm = ({ node }) => {
         <label className="mb-2 block text-sm font-medium text-white">
           Request URL
         </label>
-
         <input
           type="url"
           value={node?.data?.url || ""}

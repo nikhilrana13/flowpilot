@@ -12,7 +12,7 @@ import DeleteNodeButton from './nodes/DeleteNodeButton';
 const NodeConfig = () => {
   const { selectedNodeId, nodes } = useWorkflowContext()
   const selectedNode = nodes.find((node) => node.id === selectedNodeId)
-  console.log("selectedNode", selectedNode)
+  // console.log("selectedNode", selectedNode)
 
   let FormComponent
   switch (selectedNode?.type) {

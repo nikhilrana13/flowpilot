@@ -54,6 +54,16 @@ const FlowCanvas = () => {
     position,
     data: {
       label: NODE_LABELS[type],
+      ...(type === "http" && {
+      method: "GET",
+      url: "",
+      headers: {},
+      query: {},
+      timeout: 10000,
+    }),
+    ...(type === "gemini" && {
+      prompt: "",
+    }),
     },
   };
   setNodes((nds) => [...nds, newNode]);
