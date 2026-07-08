@@ -1,6 +1,7 @@
 "use client"
 import { getGreeting } from "@/utils/Helpers";
 import { ArrowRight, Sparkles, Workflow } from "lucide-react";
+import Link from "next/link";
 import { useSelector } from "react-redux";
 
 const WelcomeSection = () => {
@@ -34,11 +35,11 @@ const WelcomeSection = () => {
         </div>
         {/* Right */}
         <div className="flex flex-col gap-4 sm:flex-row lg:flex-col">
-          <button className="group flex cursor-pointer items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#7C3AED] to-[#0566D9] px-4 md:px-8 py-4 font-semibold text-white shadow-[0_0_40px_rgba(124,58,237,.25)] transition-all duration-300 hover:scale-[1.02]">
+          <Link href="/dashboard/workspaces"  className="group flex cursor-pointer items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#7C3AED] to-[#0566D9] px-4 md:px-8 py-4 font-semibold text-white shadow-[0_0_40px_rgba(124,58,237,.25)] transition-all duration-300 hover:scale-[1.02]">
             <Workflow className="h-5 w-5" />
-            <span>Create Workflow</span>
+            <span>Create WorkSpace</span>
             <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" />
-          </button>
+          </Link>
         </div>
       </div>
     </section>

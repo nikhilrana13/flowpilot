@@ -12,6 +12,9 @@ export const CreateWorkspace = async (req, res) => {
     if (!spacename?.trim()) {
       return Response(res, 400, "Space Name is Required");
     }
+    if (spacename.length > 50) {
+      return Response(res, 400, "Workspace name cannot exceed 50 characters.");
+    }
     //check user exists or not
     const user = await User.findById(userId);
     if (!user) {
@@ -83,9 +86,11 @@ export const GetWorkSpaceDetails = async (req, res) => {
     if (!workspace) {
       return Response(res, 400, "Workspace not found");
     }
-    const workflows = await WorkFlow.find({workspaceId}).sort({ updatedAt: -1 }).select("_id status name description updatedAt")
+    const workflows = await WorkFlow.find({ workspaceId })
+      .sort({ updatedAt: -1 })
+      .select("_id status name description updatedAt");
 
-    return Response(res, 200, "Workspace details", { workspace,workflows });
+    return Response(res, 200, "Workspace details", { workspace, workflows });
   } catch (error) {
     console.error("Failed to get workspaces details", error);
     return Response(res, 500, "Internal server error");

@@ -19,7 +19,18 @@ export const WorkSpaceApi = createApi({
             query:(id)=>`/api/workspaces/${id}`,
             providesTags:["WorkSpace"]
           }),  
+          // Create workspace
+          CreateWorkSpace:builder.mutation({
+            query:(spacename)=>({
+                url:"/api/workspaces/create",
+                method:"POST",
+                body:{
+                  spacename:spacename
+                }
+            }),
+            invalidatesTags:["WorkSpace"]
+          })   
     })
 })
 
-export const {useGetAllWorkSpaceQuery,useGetWorkSpaceDetailsQuery} = WorkSpaceApi
+export const {useGetAllWorkSpaceQuery,useGetWorkSpaceDetailsQuery,useCreateWorkSpaceMutation} = WorkSpaceApi
