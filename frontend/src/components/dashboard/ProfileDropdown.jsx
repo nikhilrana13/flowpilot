@@ -8,7 +8,7 @@ const ProfileDropdown = () => {
     const user = useSelector((state)=>state.Auth.user)
     const {handleLogout} = useLogout()
     return (
-        <Menu as="div" className="relative">
+        <Menu as="div" className="relative z-[99999]">
             <MenuButton className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#27272A] bg-[#18181B] px-3 py-2 transition hover:border-[#7C3AED]">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#7C3AED] font-semibold text-white">
                     {user?.fullname?.charAt(0) || "U"}
@@ -27,10 +27,9 @@ const ProfileDropdown = () => {
 
             <MenuItems
                 anchor="bottom end"
-                className="mt-3 w-64 origin-top-right rounded-2xl border border-[#27272A] bg-[#18181B] p-2 shadow-2xl outline-none"
+                className="mt-3 w-64 fixed z-[999999] origin-top-right rounded-2xl border border-[#27272A] bg-[#18181B] p-2 shadow-2xl outline-none"
             >
                 {/* Profile */}
-
                 <MenuItem>
                     {({ focus }) => (
                         <button
