@@ -29,7 +29,8 @@
     "react-syntax-highlighter": "^16.1.1",
     "react-toastify": "^11.1.0",
     "react18-json-view": "^0.2.10",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

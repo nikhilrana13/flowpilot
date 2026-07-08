@@ -6,7 +6,7 @@ import { ExecutionProvider, useExecutionContext } from "@/context/ExecutionConte
 import {WorkflowContextProvider,} from "@/context/WorkflowContext";
 import {
   useGetWorkflowDetailsQuery} from "@/redux/api/WorkFlowApi";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import React, { useEffect } from "react";
 import { toast } from "react-toastify";
 
@@ -17,6 +17,8 @@ const layout = ({ children }) => {
   const flowdetails = flowQuery?.data?.data?.workflow;
   const flowloading = flowQuery?.isLoading;
   const isError = flowQuery?.isError;
+  const pathname = usePathname();
+const isExecutionPage = pathname.includes("/executions");
   // console.log("flowdetails",flowdetails)
 
   if (flowloading) {
@@ -29,15 +31,19 @@ const layout = ({ children }) => {
       </div>
     );
   }
+  
   return (
     <ExecutionProvider>
        <WorkflowContextProvider workflow={flowdetails}>
       <div className="w-full h-screen overflow-hidden bg-[#0F0F13]">
-        <WorkflowHeader
+        {!isExecutionPage && (
+          <WorkflowHeader
           workflow={flowdetails}
-        />
+          />
+        )}
+        
         <ExecutionDialog />
-        <main className="h-[calc(100vh-72px)]">{children}</main>
+        <main className={isExecutionPage ? "h-screen overflow-y-auto" : "h-[calc(100vh-72px)]"}>{children}</main>
       </div>
     </WorkflowContextProvider>
     </ExecutionProvider>

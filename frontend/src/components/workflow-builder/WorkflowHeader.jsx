@@ -1,14 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Loader2, Save, Rocket, } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Loader2, Save, Rocket, History, } from "lucide-react";
 import { usePublishedWorkflowMutation, useUpdateWorkflowMutation } from "@/redux/api/WorkFlowApi";
 import { useWorkflowContext } from "@/context/WorkflowContext";
 import { toast } from "react-toastify";
 import { validateWorkflow } from "@/utils/Helpers";
 import { useExecutionContext } from "@/context/ExecutionContext";
+import { useParams } from "next/navigation";
 
 const WorkflowHeader = ({ workflow }) => {
+  const params = useParams()
+  const workspaceId = params.workspaceId;
+  const workflowId = params.workflowId;
   const id = workflow?._id
   const { nodes, edges, setSelectedNodeId } = useWorkflowContext();
   const [UpdateWorkflow, { isLoading: isUpdating }] = useUpdateWorkflowMutation();
@@ -67,8 +71,8 @@ const WorkflowHeader = ({ workflow }) => {
           <div className="mt-1 flex items-center gap-3">
             <span
               className={`rounded-full px-3 py-1 text-xs font-semibold ${workflow?.status === "published"
-                  ? "bg-emerald-500/10 text-emerald-400"
-                  : "bg-yellow-500/10 text-yellow-400"
+                ? "bg-emerald-500/10 text-emerald-400"
+                : "bg-yellow-500/10 text-yellow-400"
                 }`}
             >
               {workflow?.status === "published"
@@ -115,12 +119,21 @@ const WorkflowHeader = ({ workflow }) => {
               disabled={isExecuting}
               className="flex items-center cursor-pointer gap-2 rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#0566D9] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_0_25px_rgba(124,58,237,.25)] transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
             >
-             {isExecuting ? "Executing..." : "Execute"}
+              {isExecuting ? "Executing..." : "Execute"}
             </button>
           )
         }
-
-
+        {
+          workflow.status === "published" && (
+            <Link
+              href={`/dashboard/workspaces/${workspaceId}/workflow/${workflowId}/executions`}
+              className="flex items-center gap-2 rounded-xl border border-[#2A2A33] px-5 py-2.5 text-sm font-medium text-white transition hover:border-[#7C3AED]/40"
+            >
+              <History size={17} />
+              History
+            </Link>
+          )
+        }
       </div>
     </header>
   );

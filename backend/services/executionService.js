@@ -1,5 +1,6 @@
 import { executors } from "../executors/executorindex.js";
 import ExecutionLog from "../models/ExecutionLog.js";
+import { emitExecutionStep } from "../utils/emitExecutionStep.js";
 
 export const Execute = async ({ workflow, execution, payload = {} }) => {
   const visitedNodes = new Set();
@@ -22,7 +23,7 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
     };
     // Find Trigger
     const triggerNode = workflow.nodes.find(
-      (node) => node.type === "manual" || node.type === "webhook"
+      (node) => node.type === "manual" || node.type === "webhook",
     );
     if (!triggerNode) {
       throw new Error("Trigger node not found");
@@ -37,16 +38,87 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
       visitedNodes.add(currentNode.id);
       const executor = executors[currentNode.type];
       if (!executor) {
-        throw new Error(
-          `No executor found for node type: ${currentNode.type}`
-        );
+        throw new Error(`No executor found for node type: ${currentNode.type}`);
       }
       const nodeStartedAt = new Date();
-      const result = await executor(currentNode, context);
-      // console.log(result);
+      // socket running event
+      await emitExecutionStep({
+        userId: workflow.userId,
+        executionId: execution._id,
+        node: currentNode,
+        status: "running",
+        startedAt: nodeStartedAt,
+      });
+      let result;
+
+      try {
+        result = await executor(currentNode, context);
+        // console.log(result);
+      } catch (error) {
+        const nodeEndedAt = new Date();
+        // failed event
+        await emitExecutionStep({
+          userId: workflow.userId,
+          executionId: execution._id,
+          node: currentNode,
+          status: "failed",
+          error: error.message,
+          startedAt: nodeStartedAt,
+          completedAt: nodeEndedAt,
+        });
+         //  create execution
+        await ExecutionLog.create({
+        executionId: execution._id,
+        nodeId: currentNode.id,
+        nodeType: currentNode.type,
+        status:"failed",
+        startedAt: nodeStartedAt,
+        endedAt: nodeEndedAt,
+        input: JSON.stringify(currentNode.data || {}),
+        output:null,
+        error: error.message || null,
+      });
+        throw error
+      }
       const nodeEndedAt = new Date();
       // Save node output
       context.outputs[currentNode.id] = result.output;
+      
+      if (!result.success) {
+        // failed event
+        await emitExecutionStep({
+          userId: workflow.userId,
+          executionId: execution._id,
+          node: currentNode,
+          status: "failed",
+          error: result.error,
+          startedAt: nodeStartedAt,
+          completedAt: nodeEndedAt,
+        });
+         //  create execution
+        await ExecutionLog.create({
+        executionId: execution._id,
+        nodeId: currentNode.id,
+        nodeType: currentNode.type,
+        status:"failed",
+        startedAt: nodeStartedAt,
+        endedAt: nodeEndedAt,
+        input: JSON.stringify(currentNode.data || {}),
+        output:result.output ? typeof result.output === "string" ? result.output : JSON.stringify(result.output) : null,
+        error: result.error || null,
+      });
+        throw new Error(result.error || "Node execution failed");
+      }
+      // complete event
+      await emitExecutionStep({
+        userId: workflow.userId,
+        executionId: execution._id,
+        node: currentNode,
+        status: "completed",
+        output: result.output,
+        startedAt: nodeStartedAt,
+        completedAt: nodeEndedAt,
+      });
       // Save execution log
       await ExecutionLog.create({
         executionId: execution._id,
@@ -56,22 +128,21 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
         startedAt: nodeStartedAt,
         endedAt: nodeEndedAt,
         input: JSON.stringify(currentNode.data || {}),
-        output:   typeof result.output === "string" ? result.output : JSON.stringify(result.output),
+        output:
+          typeof result.output === "string"
+            ? result.output
+            : JSON.stringify(result.output),
         error: result.error || null,
       });
-      if (!result.success) {
-        throw new Error(result.error || "Node execution failed");
-      }
+
       // Next Node
       const nextEdge = workflow.edges.find(
-        (edge) => edge.source === currentNode.id
+        (edge) => edge.source === currentNode.id,
       );
       if (!nextEdge) {
         break;
       }
-      currentNode = workflow.nodes.find(
-        (node) => node.id === nextEdge.target
-      );
+      currentNode = workflow.nodes.find((node) => node.id === nextEdge.target);
       if (!currentNode) {
         throw new Error("Next node not found");
       }
@@ -79,7 +150,8 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
     // Complete Execution
     execution.status = "completed";
     execution.endedAt = new Date();
-    execution.duration = execution.endedAt.getTime() - execution.startedAt.getTime();
+    execution.duration =
+      execution.endedAt.getTime() - execution.startedAt.getTime();
     await execution.save();
     return {
       success: true,
@@ -91,7 +163,7 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
       execution.error = error.message;
       execution.endedAt = new Date();
       execution.duration =
-      execution.endedAt.getTime() - execution.startedAt.getTime();
+        execution.endedAt.getTime() - execution.startedAt.getTime();
       await execution.save();
     }
     throw error;

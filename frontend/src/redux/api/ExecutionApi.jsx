@@ -15,7 +15,17 @@ export const ExecutionApi = createApi({
                 method:"POST",
              }),
              invalidatesTags:["Execution"]
-          })
+          }),
+         // get execution history
+         GetExecutions:builder.query({
+            query:(page)=>({
+               url:"/api/execution/all",
+               params:{
+                  page:page
+               }
+            }),
+            providesTags:["Execution"]
+         })
     })
 })
-export const {useExecuteWorkflowMutation} = ExecutionApi 
+export const {useExecuteWorkflowMutation,useGetExecutionsQuery} = ExecutionApi 

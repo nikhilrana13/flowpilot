@@ -1,3 +1,4 @@
+import { GetIo } from "../config/socket.js";
 import Execution from "../models/Execution.js";
 import ExecutionLog from "../models/ExecutionLog.js";
 import User from "../models/UserModel.js";
@@ -7,23 +8,22 @@ import { Response } from "../utils/responseHandler.js";
 
 // manully execute
 export const ExecuteWorkflow = async (req, res) => {
+  let io;
+  let workflow;
+  let execution;
   try {
     const userId = req.user;
     const workflowId = req.params.id;
-
     // Check user exists
     const user = await User.findById(userId);
-
     if (!user) {
       return Response(res, 401, "User not found");
     }
-
     // Check workflow
-    const workflow = await WorkFlow.findOne({
+     workflow = await WorkFlow.findOne({
       _id: workflowId,
       userId,
     });
-
     if (!workflow) {
       return Response(res, 404, "Workflow not found");
     }
@@ -31,13 +31,18 @@ export const ExecuteWorkflow = async (req, res) => {
     if (workflow.status !== "published") {
       return Response(res, 409, "Workflow is not published");
     }
-
     // Create execution
-    const execution = await Execution.create({
+     execution = await Execution.create({
       workflowId: workflow._id,
       status: "running",
       triggerType: "manual",
       startedAt: new Date(),
+    });
+    io = GetIo();
+    // socket running event
+    io?.to(`user-${workflow.userId}`).emit("execution-started", {
+      executionId: execution._id,
+      status: "running",
     });
     // Execute workflow
     const result = await Execute({
@@ -45,6 +50,7 @@ export const ExecuteWorkflow = async (req, res) => {
       execution,
       payload: req.body || {},
     });
+
     // Update workflow stats
     await WorkFlow.findByIdAndUpdate(workflow._id, {
       $inc: {
@@ -54,23 +60,39 @@ export const ExecuteWorkflow = async (req, res) => {
         lastExecutedAt: new Date(),
       },
     });
-    const responseNode = workflow.nodes.find(node => node.type === "response");
+    const responseNode = workflow.nodes.find(
+      (node) => node.type === "response",
+    );
+    // completed event
+    io?.to(`user-${workflow.userId}`).emit("execution-completed", {
+      executionId: execution._id,
+      status: execution.status,
+      result: result.context.outputs[responseNode.id],
+    });
     return Response(res, 200, "Workflow executed successfully", {
       executionId: execution._id,
       status: execution.status,
-      result:result.context.outputs[responseNode.id],
+      result: result.context.outputs[responseNode.id],
     });
   } catch (error) {
     console.error("Failed to execute workflow", error);
+    io?.to(`user-${workflow.userId}`).emit("execution-failed", {
+      executionId: execution?._id,
+      status: "failed",
+      error: error.message,
+    });
     return Response(res, 500, error.message || "Internal server error");
   }
 };
 // webhook execute
 export const ExecuteWebhook = async (req, res) => {
+  let io;
+  let workflow;
+  let execution;
   try {
     const { webhookId } = req.params;
     // Find workflow
-    const workflow = await WorkFlow.findOne({
+    workflow = await WorkFlow.findOne({
       webhookId,
       status: "published",
     });
@@ -78,11 +100,17 @@ export const ExecuteWebhook = async (req, res) => {
       return Response(res, 404, "Webhook not found");
     }
     // Create execution
-    const execution = await Execution.create({
+    execution = await Execution.create({
       workflowId: workflow._id,
       status: "running",
       triggerType: "webhook",
       startedAt: new Date(),
+    });
+    io = GetIo();
+    // socket running event
+    io?.to(`user-${workflow.userId}`).emit("execution-started", {
+      executionId: execution._id,
+      status: "running",
     });
     // Execute workflow
     const result = await Execute({
@@ -99,7 +127,15 @@ export const ExecuteWebhook = async (req, res) => {
         lastExecutedAt: new Date(),
       },
     });
-    const responseNode = workflow.nodes.find(node => node.type === "response");
+    const responseNode = workflow.nodes.find(
+      (node) => node.type === "response",
+    );
+    // completed event
+    io?.to(`user-${workflow.userId}`).emit("execution-completed", {
+      executionId: execution._id,
+      status: execution.status,
+      result: result.context.outputs[responseNode.id],
+    });
     return Response(res, 200, "Webhook executed successfully", {
       executionId: execution._id,
       status: execution.status,
@@ -107,6 +143,11 @@ export const ExecuteWebhook = async (req, res) => {
     });
   } catch (error) {
     console.error("Webhook execution failed", error);
+    io?.to(`user-${workflow.userId}`).emit("execution-failed", {
+      executionId: execution?._id,
+      status: "failed",
+      error: error.message,
+    });
     return Response(res, 500, error.message || "Internal server error");
   }
 };
@@ -136,8 +177,14 @@ export const GetExecutions = async (req, res) => {
         },
       });
     }
-    const executions = await Execution.find({workflowId: {$in: workflowIds,},}).populate("workflowId", "name status")
-      .sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+    const executions = await Execution.find({
+      workflowId: { $in: workflowIds },
+    })
+      .populate("workflowId", "name status webhookId")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
     const totalExecutions = await Execution.countDocuments({
       workflowId: {
         $in: workflowIds,
@@ -194,3 +241,4 @@ export const GetExecutionDetails = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
+

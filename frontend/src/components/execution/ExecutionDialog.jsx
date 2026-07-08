@@ -5,15 +5,18 @@ import OutputRenderer from './OutputRenderer';
 import useLockBodyScroll from '@/hooks/useLockBodyScroll';
 
 const ExecutionDialog = () => {
-    const { executionDialogOpen, setExecutionDialogOpen, status, result, executionError } = useExecutionContext()
+    const { executionDialogOpen, status, result, executionError, steps, resetExecution } = useExecutionContext()
     useLockBodyScroll(executionDialogOpen)
 
     if (!executionDialogOpen) return null;
 
     const onClose = () => {
         if (status === "running") return;
-        setExecutionDialogOpen(false)
+        resetExecution()
     }
+    const completedSteps = steps.filter(s => s.status === "completed").length;
+    const progress = steps.length ? (completedSteps / steps.length) * 100 : 0;
+
     return (
         <div className="fixed inset-0 z-[100000] flex items-center justify-center p-5">
             {/* Backdrop */}
@@ -42,7 +45,6 @@ const ExecutionDialog = () => {
                             <X size={20} />
                         </button>
                     </div>
-
                     {/* Body */}
                     <div className="space-y-6 p-6">
                         {/* Status Card */}
@@ -56,7 +58,6 @@ const ExecutionDialog = () => {
                                         />
                                     </div>
                                 )}
-
                                 {status === "completed" && (
                                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
                                         <CheckCircle2
@@ -65,7 +66,6 @@ const ExecutionDialog = () => {
                                         />
                                     </div>
                                 )}
-
                                 {status === "failed" && (
                                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10">
                                         <XCircle
@@ -77,14 +77,11 @@ const ExecutionDialog = () => {
                                 <div>
                                     <h3 className="font-semibold text-white">
                                         {status === "running" && "Executing Workflow..."}
-
                                         {status === "completed" &&
                                             "Execution Completed"}
-
                                         {status === "failed" &&
                                             "Execution Failed"}
                                     </h3>
-
                                     <p className="mt-1 text-sm text-[#A1A1AA]">
                                         {status === "running"
                                             ? "Please wait while your workflow executes."
@@ -107,37 +104,76 @@ const ExecutionDialog = () => {
                                     Execution Progress
                                 </span>
                             </div>
-                            <div className="space-y-3">
-
-                                <div className="flex items-center justify-between rounded-xl bg-[#18181B] px-4 py-3">
-                                    <span className="text-white">
-                                        Manual Trigger
+                            <div className="mb-5">
+                                <div className="mb-2 flex items-center justify-between text-xs text-[#A1A1AA]">
+                                    <span>
+                                        {completedSteps} / {steps.length} Steps
                                     </span>
-                                    <Loader2
-                                        size={18}
-                                        className="animate-spin text-[#7C3AED]"
+                                    <span>{Math.round(progress)}%</span>
+                                </div>
+
+                                <div className="h-2 overflow-hidden rounded-full bg-[#27272A]">
+                                    <div
+                                        className="h-full rounded-full bg-gradient-to-r from-[#7C3AED] to-[#0566D9] transition-all duration-500"
+                                        style={{ width: `${progress}%` }}
                                     />
                                 </div>
-                                <div className="flex items-center justify-between rounded-xl bg-[#18181B] px-4 py-3 opacity-40">
-                                    <span className="text-white">
-                                        HTTP Request
-                                    </span>
-                                    <Clock3 size={18} />
-                                </div>
+                            </div>
 
-                                <div className="flex items-center justify-between rounded-xl bg-[#18181B] px-4 py-3 opacity-40">
-                                    <span className="text-white">
-                                        Gemini
-                                    </span>
-                                    <Clock3 size={18} />
-                                </div>
+                            <div className="space-y-3">
+                                {steps?.length === 0 ? (
+                                    <div className="flex items-center justify-center rounded-xl bg-[#18181B] py-8 text-sm text-[#71717A]">
+                                        Waiting for execution...
+                                    </div>
+                                ) : (
+                                    steps?.map((step) => {
+                                        const duration = step.completedAt && step.startedAt ? new Date(step.completedAt) - new Date(step.startedAt) : null;
+                                        return (
+                                            <div
+                                                key={step.node.id}
+                                                className="flex items-center justify-between rounded-xl bg-[#18181B] px-4 py-3"
+                                            >
+                                                <div>
+                                                    <p className="font-medium text-white">
+                                                        {step.node.label || step.node.type}
+                                                    </p>
 
-                                <div className="flex items-center justify-between rounded-xl bg-[#18181B] px-4 py-3 opacity-40">
-                                    <span className="text-white">
-                                        Response
-                                    </span>
-                                    <Clock3 size={18} />
-                                </div>
+                                                    <p className="mt-1 text-xs capitalize text-[#A1A1AA]">
+                                                        {step.node.type}
+                                                    </p>
+
+                                                    {duration !== null && (
+                                                        <p className="mt-1 text-xs text-[#71717A]">
+                                                            {duration} ms
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                {step.status === "running" && (
+                                                    <Loader2
+                                                        size={18}
+                                                        className="animate-spin text-[#7C3AED]"
+                                                    />
+                                                )}
+
+                                                {step.status === "completed" && (
+                                                    <CheckCircle2
+                                                        size={18}
+                                                        className="text-emerald-400"
+                                                    />
+                                                )}
+
+                                                {step.status === "failed" && (
+                                                    <XCircle
+                                                        size={18}
+                                                        className="text-red-400"
+                                                    />
+                                                )}
+
+                                            </div>
+                                        )
+                                    })
+                                )}
                             </div>
                         </div>
                         {/* Result */}
@@ -164,7 +200,7 @@ const ExecutionDialog = () => {
                                     Error
                                 </h3>
                                 <div className="mt-3">
-                                <OutputRenderer data={executionError} />
+                                    <OutputRenderer data={executionError} />
                                 </div>
                             </div>
                         )}
@@ -176,3 +212,4 @@ const ExecutionDialog = () => {
 }
 
 export default ExecutionDialog;
+

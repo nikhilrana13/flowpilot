@@ -4,6 +4,7 @@ import "@xyflow/react/dist/style.css";
 import ReduxProvider from "@/providers/ReduxProvider";
 import PersistProvider from "@/providers/PersistProvider";
 import ToastProvider from "@/providers/ToastProvider";
+import SocketProvider from "@/providers/SocketProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +30,7 @@ export default function RootLayout({ children }) {
       <body >
         <ReduxProvider>
           <PersistProvider>
+            <SocketProvider />
             <ToastProvider />
              {children}
           </PersistProvider>
