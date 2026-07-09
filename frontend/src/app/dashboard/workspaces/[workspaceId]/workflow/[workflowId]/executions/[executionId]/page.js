@@ -22,7 +22,7 @@ const page = () => {
   const { data, isLoading, isError } = useGetExecutionDetailsQuery(executionId);
   const execution = data?.data?.execution || {};
   const logs = data?.data?.logs || [];
-  console.log("logs", logs);
+//   console.log("logs", logs);
 
   if (isLoading) {
     return (

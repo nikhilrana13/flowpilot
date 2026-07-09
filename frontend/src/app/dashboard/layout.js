@@ -1,6 +1,7 @@
 "use client";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
+import IsAuthenticated from "@/middlewares/isAuthenticated";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -13,7 +14,8 @@ const layout = ({ children }) => {
     setIsOpen(false);
   }, [pathname]);
   return (
-    <div className="flex flex-col">
+    <IsAuthenticated>
+      <div className="flex flex-col">
       {/* header */}
       <Header onMenuClick={() => setIsOpen(true)} />
       <div className="flex flex-col md:flex-row min-h-screen w-full">
@@ -45,6 +47,8 @@ const layout = ({ children }) => {
         </div>
       </div>
     </div>
+    </IsAuthenticated>
+    
   );
 };
 

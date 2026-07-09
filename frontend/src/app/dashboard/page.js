@@ -7,9 +7,10 @@ import RecentWorkflowCardShimmer from "@/components/workflow/RecentWorkflowCardS
 import { useGetDashboardStatsQuery } from "@/redux/api/DashboardApi";
 import { ActivityIcon, FileClock, FolderKanban, Workflow } from "lucide-react";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 
 const page = () => {
-  const statsQuery = useGetDashboardStatsQuery();
+  const statsQuery = useGetDashboardStatsQuery()
   const stats = statsQuery?.data?.data?.stats;
   const recentWorkflows = statsQuery?.data?.data?.recentWorkflows || [];
   const loading = statsQuery?.isLoading

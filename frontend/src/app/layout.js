@@ -5,6 +5,7 @@ import ReduxProvider from "@/providers/ReduxProvider";
 import PersistProvider from "@/providers/PersistProvider";
 import ToastProvider from "@/providers/ToastProvider";
 import SocketProvider from "@/providers/SocketProvider";
+import IsAuthenticated from "@/middlewares/isAuthenticated";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,7 @@ export default function RootLayout({ children }) {
           <PersistProvider>
             <SocketProvider />
             <ToastProvider />
-             {children}
+            {children}
           </PersistProvider>
         </ReduxProvider>
        </body>

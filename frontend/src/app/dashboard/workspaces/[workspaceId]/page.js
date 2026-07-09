@@ -7,11 +7,12 @@ import { ArrowLeftCircle, Plus } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import React from "react";
+import { useSelector } from "react-redux";
 
 const page = () => {
   const params = useParams();
   const workspaceId = params?.workspaceId;
-  const spaceQuery = useGetWorkSpaceDetailsQuery(workspaceId);
+  const spaceQuery = useGetWorkSpaceDetailsQuery();
   const spaceDetails = spaceQuery?.data?.data?.workspace || {};
   const workflows = spaceQuery?.data?.data?.workflows || [];
   const loading = spaceQuery?.isLoading;
