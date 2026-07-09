@@ -11,7 +11,7 @@ export const HttpExecutor = async (node, context) => {
       headers = {},
       query = {},
       body = {},
-      timeout = 10000,
+      timeout = 60000,
     } = node.data || {};
 
     const allowedMethods = ["GET", "POST", "PUT", "PATCH", "DELETE"];
@@ -36,7 +36,7 @@ export const HttpExecutor = async (node, context) => {
     }
 
     const response = await axios(config);
-   
+    // console.log("response",response)
     return {
       success: response.status >= 200 && response.status < 300,
       nodeId: node.id,
