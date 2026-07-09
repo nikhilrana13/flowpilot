@@ -25,7 +25,12 @@ export const ExecutionApi = createApi({
                }
             }),
             providesTags:["Execution"]
+         }),
+         // get Execution Details 
+         GetExecutionDetails:builder.query({
+            query:(id)=>`/api/execution/${id}`,
+            providesTags:["Execution"]
          })
     })
 })
-export const {useExecuteWorkflowMutation,useGetExecutionsQuery} = ExecutionApi 
+export const {useExecuteWorkflowMutation,useGetExecutionsQuery,useGetExecutionDetailsQuery} = ExecutionApi 

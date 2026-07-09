@@ -3,6 +3,8 @@ import ExecutionEmptyState from "@/components/execution/ExecutionEmptyState";
 import ExecutionHistoryCard from "@/components/execution/ExecutionHistoryCard";
 import ExecutionHistoryCardShimmer from "@/components/execution/ExecutionHistoryCardShimmer";
 import { useGetExecutionsQuery } from "@/redux/api/ExecutionApi";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { useState } from "react";
 
@@ -24,8 +26,16 @@ const pagination = executionQuery?.data?.data?.pagination || {};
 
   return (
     <div className="min-h-screen bg-[#0F0F13] p-8">
+      <Link
+              href={`/dashboard/workspaces/${workspaceId}/workflow/${workflowId}`}
+              className="mb-8 inline-flex items-center gap-2 text-[#A1A1AA] hover:text-white"
+            >
+              <ArrowLeft size={18} />
+              Back to Builder
+            </Link>
       {/* Header */}
       <div className="mb-5 flex items-center justify-between">
+
         <div>
           <h1 className="text-3xl font-bold text-white">Execution History</h1>
           <p className="mt-2 text-[#A1A1AA]">
