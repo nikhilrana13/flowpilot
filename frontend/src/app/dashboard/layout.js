@@ -2,17 +2,31 @@
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import IsAuthenticated from "@/middlewares/isAuthenticated";
-import { usePathname } from "next/navigation";
+import { resetAllApiCaches } from "@/utils/resetApiCache";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 const layout = ({ children }) => {
   const [open, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter()
   const isWorkflowBuilder = pathname.includes("/workflow/") && !pathname.endsWith("/create");
   //auto close sidebar    
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
+  // redirect to login if recieve 401 
+  useEffect(()=>{
+    const handleAuthenticated = ()=>{
+        router.replace("/auth/login")
+        resetAllApiCaches()
+    }
+    window.addEventListener("unauthorized",handleAuthenticated)
+    return ()=> {
+      window.removeEventListener("unauthorized",handleAuthenticated)
+    }
+  },[router])
+
   return (
     <IsAuthenticated>
       <div className="flex flex-col">

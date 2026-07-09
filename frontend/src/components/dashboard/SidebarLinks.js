@@ -15,14 +15,4 @@ export const sidebarLinks = [
             },
         ],
     },
-    {
-        label: "Integrations",
-        href: "/dashboard/integrations",
-        icon: PlugZap,
-    },
-    {
-        label: "Settings",
-        href: "/dashboard/settings",
-        icon: Settings,
-    },
 ];

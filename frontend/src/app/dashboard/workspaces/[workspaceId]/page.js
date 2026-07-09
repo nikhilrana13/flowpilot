@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
 const page = () => {
   const params = useParams();
   const workspaceId = params?.workspaceId;
-  const spaceQuery = useGetWorkSpaceDetailsQuery();
+  const spaceQuery = useGetWorkSpaceDetailsQuery(workspaceId);
   const spaceDetails = spaceQuery?.data?.data?.workspace || {};
   const workflows = spaceQuery?.data?.data?.workflows || [];
   const loading = spaceQuery?.isLoading;
