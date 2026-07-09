@@ -154,18 +154,6 @@ FlowPilot can be used to build automations such as:
 
 ---
 
-## 📷 Screenshots
-
-> Add screenshots of:
-
-- Authentication
-- Dashboard
-- Workflow Builder
-- Workflow Execution
-- Execution History
-- Workspace Management
-
----
 
 ## 🚀 Getting Started
 
