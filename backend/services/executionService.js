@@ -1,4 +1,4 @@
-import { executors } from "../executors/executorindex.js";
+import { executors } from "../executors/executorIndex.js";
 import ExecutionLog from "../models/ExecutionLog.js";
 import { emitExecutionStep } from "../utils/emitExecutionStep.js";
 
