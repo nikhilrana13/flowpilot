@@ -7,6 +7,8 @@ import { useSelector } from "react-redux";
 const WelcomeSection = () => {
     const user = useSelector((state)=>state.Auth.user)
     const greeting = getGreeting()
+
+
   return (
     <section className="relative overflow-hidden rounded-3xl border border-[#27272A] bg-[#18181B] p-6 sm:p-8 lg:p-10">
       {/* Background Glow */}

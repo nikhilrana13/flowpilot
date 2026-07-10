@@ -17,7 +17,7 @@ const useLogout = () => {
                 localStorage.removeItem("token")
                 dispatch(SetUser(null))
                 dispatch(resetAllApiCaches())
-                router.replace("/auth/login")
+                router.replace("/")
             }
         } catch (error) {
             console.error("failed to logout",error)

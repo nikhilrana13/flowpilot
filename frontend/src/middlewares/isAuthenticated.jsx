@@ -8,7 +8,7 @@ const IsAuthenticated = ({children}) => {
   const user = useSelector((state) => state.Auth.user);
   useEffect(() => {
     if (!user) {
-      router.replace("/auth/login");
+      router.replace("/");
     }
   }, [user, router]);
   if (!user) return null; // loader

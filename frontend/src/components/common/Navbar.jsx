@@ -20,28 +20,20 @@ const Navbar = () => {
                         </Link>
 
                         <div className="hidden items-center gap-8 md:flex">
-                            <Link
-                                href="#"
-                                className=" border-[#ffffff] font-semibold text-[#ffffff] transition"
-                            >
-                                Product
-                            </Link>
-                            <Link
-                                href="#"
+                             <Link
+                                href="/"
                                 className="text-[#A1A1AA] transition-colors hover:text-white"
                             >
-                                Pricing
+                                Home
                             </Link>
-
                             <Link
-                                href="#"
+                                href="/docs"
                                 className="text-[#A1A1AA] transition-colors hover:text-white"
                             >
                                 Docs
                             </Link>
                         </div>
                     </div>
-
                     {/* Actions */}
                     <div className="flex items-center gap-4">
                         <Link
@@ -69,21 +61,8 @@ const Navbar = () => {
             <div className={`lg:hidden transition-transform ease-in-out ${open ? 'translate-x-0' : '-translate-x-full'} duration-300 fixed inset-0 bg-[#121315]/80 backdrop-blur-md flex items-center justify-center flex-col gap-8 z-999`}>
                 <div className="flex items-center gap-8 flex-col active:scale-95">
                     <Link
-                        href="#"
+                        href="/docs"
                         className=" border-[#ffffff] font-semibold text-[#ffffff] transition"
-                    >
-                        Product
-                    </Link>
-                    <Link
-                        href="#"
-                        className="text-[#A1A1AA] transition-colors hover:text-white"
-                    >
-                        Pricing
-                    </Link>
-
-                    <Link
-                        href="#"
-                        className="text-[#A1A1AA] transition-colors hover:text-white"
                     >
                         Docs
                     </Link>
@@ -93,7 +72,6 @@ const Navbar = () => {
                     >
                         Sign In
                     </Link>
-
                     <Link
                         href="/auth/signup"
                         className="rounded-lg  text-[#A1A1AA] transition-colors hover:text-white active:scale-95 "
