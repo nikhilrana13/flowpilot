@@ -1,5 +1,5 @@
 import axios from "axios";
-import { resolveValue } from "../utils/resolveValue";
+import { resolveValue } from "../utils/resolveValue.js";
 
 export const HttpExecutor = async (node, context) => {
   try {
