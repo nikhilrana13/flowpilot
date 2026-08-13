@@ -17,6 +17,7 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
     }
     // Context
     const context = {
+      trigger: payload,
       payload,
       outputs: {},
       executionId: execution._id,

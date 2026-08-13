@@ -1,4 +1,5 @@
 import axios from "axios";
+import { resolveValue } from "../utils/resolveValue";
 
 export const HttpExecutor = async (node, context) => {
   try {
@@ -19,11 +20,34 @@ export const HttpExecutor = async (node, context) => {
     if (!allowedMethods.includes(method.toUpperCase())) {
       throw new Error("Invalid HTTP method");
     }
+    // Resolve dynamic values
+    const resolvedUrl = resolveValue(url, context);
 
-    new URL(url);
+    const resolvedHeaders = Object.fromEntries(
+      Object.entries(headers).map(([key, value]) => [
+        key,
+        resolveValue(value, context),
+      ]),
+    );
+
+    const resolvedQuery = Object.fromEntries(
+      Object.entries(query).map(([key, value]) => [
+        key,
+        resolveValue(value, context),
+      ]),
+    );
+
+    const resolvedBody = Object.fromEntries(
+      Object.entries(body).map(([key, value]) => [
+        key,
+        resolveValue(value, context),
+      ]),
+    );
+
+    new URL(resolvedUrl);
 
     const config = {
-      url,
+      url:resolvedUrl,
       method: method.toUpperCase(),
       headers,
       params: query,
