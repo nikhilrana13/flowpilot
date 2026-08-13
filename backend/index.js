@@ -19,11 +19,19 @@ const PORT = process.env.PORT || 5000
 const app = express()
 
 
+const apiCors = cors({
+  origin: process.env.NEXT_FRONTEND_URL,
+  credentials: true,
+});
+// Public webhook CORS
+const webhookCors = cors({
+  origin: true,
+  methods: ["POST", "OPTIONS"],
+});
+
+
+
 // middlewares 
-app.use(cors({
-    origin:process.env.NEXT_FRONTEND_URL,
-    credentials:true
-}))
 app.use(express.json())
 app.use(cookieParser())
 
@@ -33,13 +41,16 @@ initializeSocket(server)
 
 
 // routes 
-app.use("/api/auth",authRoute)
-app.use("/api/workspaces",workSpaceRoute)
-app.use("/api/workflow",workflowRoute)
-app.use("/api/execution",executionRoute)
-app.use("/api/webhooks",webhookRoute)
-app.use("/api/user",userRoute)
-app.use("/api/analytics",analyticsRoute)
+app.use("/api/auth",apiCors,authRoute)
+app.use("/api/workspaces",apiCors,workSpaceRoute)
+app.use("/api/workflow",apiCors,workflowRoute)
+app.use("/api/execution",apiCors,executionRoute)
+app.use("/api/user",apiCors,userRoute)
+app.use("/api/analytics",apiCors,analyticsRoute)
+
+
+app.use("/api/webhooks",webhookCors,webhookRoute)
+
 
 
 // connect to db 
