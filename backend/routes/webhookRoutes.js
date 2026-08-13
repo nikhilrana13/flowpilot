@@ -4,6 +4,6 @@ const router = express.Router()
 
 
 // routes 
-router.get("/:webhookId",ExecuteWebhook)
+router.post("/:webhookId",ExecuteWebhook)
 
 export default router
