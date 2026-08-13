@@ -22,6 +22,8 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
       outputs: {},
       executionId: execution._id,
     };
+    // console.log("EXECUTION PAYLOAD:", payload);
+    // console.log("EXECUTION CONTEXT:", context);
     // Find Trigger
     const triggerNode = workflow.nodes.find(
       (node) => node.type === "manual" || node.type === "webhook",
@@ -67,24 +69,24 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
           startedAt: nodeStartedAt,
           completedAt: nodeEndedAt,
         });
-         //  create execution
+        //  create execution
         await ExecutionLog.create({
-        executionId: execution._id,
-        nodeId: currentNode.id,
-        nodeType: currentNode.type,
-        status:"failed",
-        startedAt: nodeStartedAt,
-        endedAt: nodeEndedAt,
-        input: JSON.stringify(currentNode.data || {}),
-        output:null,
-        error: error.message || null,
-      });
-        throw error
+          executionId: execution._id,
+          nodeId: currentNode.id,
+          nodeType: currentNode.type,
+          status: "failed",
+          startedAt: nodeStartedAt,
+          endedAt: nodeEndedAt,
+          input: JSON.stringify(currentNode.data || {}),
+          output: null,
+          error: error.message || null,
+        });
+        throw error;
       }
       const nodeEndedAt = new Date();
       // Save node output
       context.outputs[currentNode.id] = result.output;
-      
+
       if (!result.success) {
         // failed event
         await emitExecutionStep({
@@ -96,18 +98,22 @@ export const Execute = async ({ workflow, execution, payload = {} }) => {
           startedAt: nodeStartedAt,
           completedAt: nodeEndedAt,
         });
-         //  create execution
+        //  create execution
         await ExecutionLog.create({
-        executionId: execution._id,
-        nodeId: currentNode.id,
-        nodeType: currentNode.type,
-        status:"failed",
-        startedAt: nodeStartedAt,
-        endedAt: nodeEndedAt,
-        input: JSON.stringify(currentNode.data || {}),
-        output:result.output ? typeof result.output === "string" ? result.output : JSON.stringify(result.output) : null,
-        error: result.error || null,
-      });
+          executionId: execution._id,
+          nodeId: currentNode.id,
+          nodeType: currentNode.type,
+          status: "failed",
+          startedAt: nodeStartedAt,
+          endedAt: nodeEndedAt,
+          input: JSON.stringify(currentNode.data || {}),
+          output: result.output
+            ? typeof result.output === "string"
+              ? result.output
+              : JSON.stringify(result.output)
+            : null,
+          error: result.error || null,
+        });
         throw new Error(result.error || "Node execution failed");
       }
       // complete event

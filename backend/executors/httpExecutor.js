@@ -20,6 +20,7 @@ export const HttpExecutor = async (node, context) => {
     if (!allowedMethods.includes(method.toUpperCase())) {
       throw new Error("Invalid HTTP method");
     }
+   
     // Resolve dynamic values
     const resolvedUrl = resolveValue(url, context);
 
@@ -36,7 +37,7 @@ export const HttpExecutor = async (node, context) => {
         resolveValue(value, context),
       ]),
     );
-
+     
     const resolvedBody = Object.fromEntries(
       Object.entries(body).map(([key, value]) => [
         key,
@@ -49,16 +50,16 @@ export const HttpExecutor = async (node, context) => {
     const config = {
       url:resolvedUrl,
       method: method.toUpperCase(),
-      headers,
-      params: query,
+      headers:resolvedHeaders,
+      params: resolvedQuery,
       timeout,
       validateStatus: () => true,
     };
 
     if (!["GET", "DELETE"].includes(method.toUpperCase())) {
-      config.data = body;
+      config.data = resolvedBody;
     }
-
+// console.log("HTTP CONFIG:", config);
     const response = await axios(config);
     // console.log("response",response)
     return {
