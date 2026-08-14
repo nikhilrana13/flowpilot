@@ -1,14 +1,17 @@
 import { GoogleGenAI } from "@google/genai";
 
-const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const genAI = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+});
 
 export const GeminiExecutor = async (node, context) => {
   try {
     if (!node) {
       throw new Error("Gemini node is missing");
     }
+
     const {
-      model = "gemini-2.5-flash",
+      model = "gemini-3.6-flash",
       prompt,
       temperature = 0.7,
       maxOutputTokens = 1024,
@@ -18,38 +21,66 @@ export const GeminiExecutor = async (node, context) => {
       throw new Error("Prompt is required");
     }
 
-    // Get previous HTTP node output (V1)
+    // Get previous node output
     const previousOutput = Object.values(context.outputs).at(-1);
-    const finalPrompt = `${prompt} Input Data ${JSON.stringify(previousOutput?.output ?? previousOutput, null, 2)} 
-    Instructions:
-    Rules:
+
+    const inputData =
+      previousOutput?.output ?? previousOutput ?? null;
+
+    const finalPrompt = `
+${prompt}
+
+Input Data:
+${JSON.stringify(inputData, null, 2)}
+
+Instructions:
 - The input can be any valid JSON.
-- Analyze it according to the prompt.
+- Analyze the input according to the prompt.
 - Return ONLY valid JSON.
 - Do not use markdown.
+- Do not wrap the response inside \`\`\`json.
+- Do not add explanations outside the JSON.
 `;
-    const result = await genAI.models.generateContent({
+
+    const interaction = await genAI.interactions.create({
       model,
-      contents: finalPrompt,
-      config: {
+      input: finalPrompt,
+
+      generation_config: {
         temperature,
-        maxOutputTokens,
+        max_output_tokens: maxOutputTokens,
       },
+
+      response_format: [
+        {
+          type: "text",
+          mime_type: "application/json",
+        },
+      ],
     });
-    let output = result.text.trim();
-    // Remove markdown code blocks
+
+    // Get Gemini output
+    let output = interaction.output_text?.trim();
+
+    if (!output) {
+      throw new Error("Gemini returned an empty response");
+    }
+    // Safety: remove markdown code blocks if model still returns them
     output = output
       .replace(/^```json\s*/i, "")
       .replace(/^```\s*/i, "")
-      .replace(/\s*```$/, "")
+      .replace(/\s*```$/i, "")
       .trim();
-    // Try parsing JSON
+
+    // Parse JSON
     try {
       output = JSON.parse(output);
-    } catch {
-      // console.log("Failed to parse Gemini output");
-      // console.log(output);
+    } catch (parseError) {
+      throw new Error(
+        `Gemini returned invalid JSON: ${output}`
+      );
     }
+
     return {
       success: true,
       nodeId: node.id,
@@ -58,11 +89,15 @@ export const GeminiExecutor = async (node, context) => {
       output,
     };
   } catch (error) {
+    console.error("Gemini Executor Error:", error);
+
     return {
       success: false,
       nodeId: node?.id,
       nodeType: node?.type,
-      error: error.message || "Gemini execution failed",
+      error:
+        error?.message ||
+        "Gemini execution failed",
     };
   }
 };
